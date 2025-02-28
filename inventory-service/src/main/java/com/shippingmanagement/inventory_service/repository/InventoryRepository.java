@@ -1,4 +1,4 @@
-package com.shippingmanagement.inventory_service.repositroy;
+package com.shippingmanagement.inventory_service.repository;
 
 import com.shippingmanagement.inventory_service.model.Inventory;
 import org.springframework.data.jpa.repository.JpaRepository;
