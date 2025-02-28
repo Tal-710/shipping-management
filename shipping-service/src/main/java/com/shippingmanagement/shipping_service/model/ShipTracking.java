@@ -35,7 +35,6 @@ public class ShipTracking {
     @OneToMany(mappedBy = "shipTracking", cascade = CascadeType.ALL)
     private List<OrderShipment> orderShipments = new ArrayList<>();
 
-    // Utility method to add order shipment
     public void addOrderShipment(OrderShipment orderShipment) {
         orderShipments.add(orderShipment);
         orderShipment.setShipTracking(this);

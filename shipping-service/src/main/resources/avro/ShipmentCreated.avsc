@@ -1,0 +1,41 @@
+{
+  "namespace": "com.shippingmanagement.shipping_service.avro",
+  "type": "record",
+  "name": "ShipmentCreated",
+  "fields": [
+    {
+      "name": "shipmentId",
+      "type": "string"
+    },
+    {
+      "name": "orderId",
+      "type": "int"
+    },
+    {
+      "name": "customerId",
+      "type": "string"
+    },
+    {
+      "name": "destinationCountry",
+      "type": "string"
+    },
+    {
+      "name": "shipId",
+      "type": "int"
+    },
+    {
+      "name": "departureDate",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "createdAt",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    }
+  ]
+}
