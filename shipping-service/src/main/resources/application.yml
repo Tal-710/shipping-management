@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: shipping-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/shipping_system
+    username: root
+    password: 123456789
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    schema-registry-url: http://localhost:8081
+
+    consumer:
+      group-id: shipping-service-group
+      auto-offset-reset: earliest
+
+    streams:
+      application-id: ${spring.application.name}-streams
+      properties:
+        default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+        default.value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+        processing.guarantee: exactly_once_v2
+        commit.interval.ms: 1000
+        cache.max.bytes.buffering: 0
+
+app:
+  kafka:
+    topics:
+      order-submitted: order-submitted
+      shipment-created: shipment-created
+      unassigned-shipping-orders: unassigned-shipping-orders-topic
+
+
+logging:
+  level:
+    com.shippingmanagement: INFO
+    org.apache.kafka: WARN
+    org.apache.kafka.streams: INFO
+server:
+  port: 8090
