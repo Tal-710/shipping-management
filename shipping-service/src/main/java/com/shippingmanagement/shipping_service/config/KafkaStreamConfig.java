@@ -47,9 +47,6 @@ public class KafkaStreamConfig {
         return new KafkaStreamsConfiguration(props);
     }
 
-    /**
-     * Create a specific Avro serde for ShipmentCreated events
-     */
     @Bean
     public SpecificAvroSerde<?> shipmentCreatedSerde() {
         final SpecificAvroSerde<?> serde = new SpecificAvroSerde<>();
@@ -58,7 +55,7 @@ public class KafkaStreamConfig {
         serdeConfig.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
         serdeConfig.put("specific.avro.reader", "true");
 
-        serde.configure(serdeConfig, false); // false for values (not keys)
+        serde.configure(serdeConfig, false);
         return serde;
     }
 }
