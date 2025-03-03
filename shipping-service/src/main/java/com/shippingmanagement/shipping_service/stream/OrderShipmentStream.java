@@ -34,7 +34,7 @@ public class OrderShipmentStream {
 
     private final ShipmentService shipmentService;
     private final ObjectMapper objectMapper;
-    private final SpecificAvroSerde<?> shipmentCreatedSerde;
+    private final SpecificAvroSerde<ShipmentCreated> shipmentCreatedSerde;
 
     @Value("${app.kafka.topics.order-submitted}")
     private String orderSubmittedTopic;
@@ -68,7 +68,6 @@ public class OrderShipmentStream {
         KStream<String, ShipmentCreated> shipmentStream = orderStream.mapValues(orderEvent -> {
             log.info("Processing order {} for destination {}", orderEvent.getOrderId(), orderEvent.getDestinationCountry());
 
-            // Attempt to assign the order to a ship via the shipment service
             Optional<ShipTracking> shipOptional = shipmentService.assignOrderToShip(
                     orderEvent.getOrderId(),
                     orderEvent.getDestinationCountry()
@@ -78,7 +77,6 @@ public class OrderShipmentStream {
                 log.warn("No ship available for destination {}. Order {} cannot be processed.",
                         orderEvent.getDestinationCountry(), orderEvent.getOrderId());
 
-                // Return a placeholder ShipmentCreated with shipId=0 to indicate no ship was found
                 return createNoShipFoundEvent(orderEvent);
             }
 
@@ -108,27 +106,24 @@ public class OrderShipmentStream {
         });
 
         KStream<String, ShipmentCreated>[] branches = shipmentStream.branch(
-                (key, shipment) -> shipment.getShipId() > 0,  // First predicate: valid shipments
-                (key, shipment) -> shipment.getShipId() == 0  // Second predicate: unassigned orders
+                (key, shipment) -> shipment.getShipId() > 0,
+                (key, shipment) -> shipment.getShipId() == 0
         );
 
-        // Publish valid shipments
         branches[0].to(
                 shipmentCreatedTopic,
-                Produced.with(Serdes.String(), (Serde<ShipmentCreated>) shipmentCreatedSerde)
+                Produced.with(Serdes.String(), shipmentCreatedSerde)
         );
 
-        // Publish unassigned orders
         branches[1].to(
                 unassignedShippingOrdersTopic,
-                Produced.with(Serdes.String(), (Serde<ShipmentCreated>) shipmentCreatedSerde)
+                Produced.with(Serdes.String(), shipmentCreatedSerde)
         );
 
         return shipmentStream;
     }
 
     private ShipmentCreated createNoShipFoundEvent(OrderSubmittedEvent orderEvent) {
-        // Create a placeholder ShipmentCreated with shipId=0 to indicate no ship was found
         return ShipmentCreated.newBuilder()
                 .setShipmentId(UUID.randomUUID().toString())
                 .setOrderId(orderEvent.getOrderId())

@@ -1,5 +1,6 @@
 package com.shippingmanagement.shipping_service.config;
 
+import com.shippingmanagement.shipping_service.avro.ShipmentCreated;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -48,8 +49,8 @@ public class KafkaStreamConfig {
     }
 
     @Bean
-    public SpecificAvroSerde<?> shipmentCreatedSerde() {
-        final SpecificAvroSerde<?> serde = new SpecificAvroSerde<>();
+    public SpecificAvroSerde<ShipmentCreated> shipmentCreatedSerde() {
+        final SpecificAvroSerde<ShipmentCreated> serde = new SpecificAvroSerde<>();
 
         Map<String, String> serdeConfig = new HashMap<>();
         serdeConfig.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);

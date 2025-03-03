@@ -40,7 +40,7 @@ public class InventoryService {
             }
 
             Inventory inventory = inventoryOptional.get();
-            if (inventory.getQuantityAvailable() < item.getQuantity()) {
+            if (inventory.getQuantityAvailable() - item.getQuantity()<0) {
                 log.warn("Insufficient inventory for product {}. Requested: {}, Available: {}",
                         item.getProductId(), item.getQuantity(), inventory.getQuantityAvailable());
 
