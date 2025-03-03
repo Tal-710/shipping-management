@@ -6,7 +6,6 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-  # Database configuration - MySQL
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/shipping_system
     username: root
@@ -22,12 +21,9 @@ spring:
         format_sql: true
     show-sql: true
 
-
-# Server configuration
 server:
   port: 8085
 
-# Eureka client configuration
 eureka:
   client:
     service-url:
@@ -35,7 +31,6 @@ eureka:
   instance:
     prefer-ip-address: true
 
-# Application specific configuration
 app:
   inventory-service-url: http://localhost:8080
   kafka:
