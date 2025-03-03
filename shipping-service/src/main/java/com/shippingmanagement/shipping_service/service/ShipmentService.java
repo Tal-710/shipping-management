@@ -45,7 +45,6 @@ public class ShipmentService {
 
     @Transactional
     public void createOrderShipment(Integer orderId, ShipTracking ship) {
-        // Check if this order is already assigned to a ship
         Optional<OrderShipment> existingAssignment = orderShipmentRepository.findByOrderId(orderId);
         if (existingAssignment.isPresent()) {
             log.info("Order {} is already assigned to ship {}",
@@ -53,7 +52,7 @@ public class ShipmentService {
             return;
         }
 
-        // Create order_shipment record
+
         OrderShipment orderShipment = OrderShipment.builder()
                 .orderId(orderId)
                 .shipTracking(ship)
