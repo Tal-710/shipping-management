@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OrderResponse {
+public class OrderDTO {
     @JsonProperty("orderId")
     private Integer orderId;
     private String customerId;
