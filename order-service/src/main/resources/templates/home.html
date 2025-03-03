@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipping Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header>
+    <div class="container">
+        <h1>Shipping Management System</h1>
+    </div>
+</header>
+
+<nav>
+    <a th:href="@{/}" class="active">Create Order</a>
+    <a th:href="@{/order-status}">Order Status</a>
+    <a th:href="@{/inventory-status}">Inventory Status</a>
+    <a th:href="@{/shipping-status}">Shipping Status</a>
+</nav>
+
+<div class="container">
+    <!-- Notification area with fixed height -->
+    <div class="notification-area">
+        <div id="orderAlert" class="alert hidden">
+            <span id="alertMessage"></span>
+            <button type="button" class="close-btn" onclick="dismissAlert()">&times;</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">New Order</div>
+        <div class="card-body">
+            <form id="orderForm">
+                <div class="form-group">
+                    <label for="customerId">Customer ID</label>
+                    <input type="text" id="customerId" name="customerId" placeholder="Enter customer ID" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="destinationCountry">Destination Country</label>
+                    <select id="destinationCountry" name="destinationCountry" required>
+                        <option value="">Select Country</option>
+                        <option value="US">United States</option>
+                        <option value="UK">United Kingdom</option>
+                        <option value="CA">Canada</option>
+                        <option value="AU">Australia</option>
+                        <option value="DE">Germany</option>
+                        <option value="FR">France</option>
+                        <option value="JP">Japan</option>
+                        <option value="CN">China</option>
+                        <option value="BR">Brazil</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Products</label>
+                    <button type="button" id="addProductBtn" class="btn-add">Add Product</button>
+
+                    <div id="productContainer">
+                        <!-- Products will be added here dynamically -->
+                    </div>
+                </div>
+
+                <button type="submit">Submit Order</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/home.js}"></script>
+</body>
+</html>
