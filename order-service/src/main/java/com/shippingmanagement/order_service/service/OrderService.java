@@ -28,7 +28,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final WebClient.Builder webClientBuilder;
-    private final KafkaTemplate<String, OrderResponse> kafkaTemplate;
+    private final KafkaTemplate<String, OrderDTO> kafkaTemplate;
 
     @Value("${app.inventory-service-url}")
     private String inventoryServiceUrl;
@@ -37,7 +37,7 @@ public class OrderService {
     private String orderSubmittedTopic;
 
     @Transactional
-    public OrderResponse createOrder(OrderRequest orderRequest) {
+    public OrderDTO createOrder(OrderRequest orderRequest) {
         log.info("Creating new order with {} items", orderRequest.getOrderItems().size());
 
 
@@ -111,11 +111,16 @@ public class OrderService {
     }
 
     private void publishOrderSubmitted(Order order) {
+<<<<<<< HEAD
 
         OrderResponse orderResponse = orderMapper.mapToDto(order);
+=======
+        // Use existing mapper to convert Order to OrderResponse
+        OrderDTO orderDTO = orderMapper.mapToDto(order);
+>>>>>>> 4c8b16094ad6143bad0e49aaa3b68ba96f7e441d
 
         // Send the OrderResponse to Kafka
-        kafkaTemplate.send(orderSubmittedTopic, String.valueOf(order.getOrderId()), orderResponse);
+        kafkaTemplate.send(orderSubmittedTopic, String.valueOf(order.getOrderId()), orderDTO);
         log.info("Published order submitted event for order ID: {}", order.getOrderId());
     }
 }
