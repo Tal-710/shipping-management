@@ -25,7 +25,7 @@ public class Inventory {
     @Column(name = "quantity_available", nullable = false)
     private Integer quantityAvailable;
 
-    // Instead of a direct relationship, we'll use the product ID
-    // In a real-world app, we might add a @ManyToOne relationship
-    // But for microservices, we'll keep them decoupled
+
+
+
 }

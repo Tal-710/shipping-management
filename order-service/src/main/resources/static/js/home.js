@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const alertMessage = document.getElementById('alertMessage');
     const notificationArea = document.querySelector('.notification-area');
 
-    // Product catalog data (id, name, price)
+
     const products = [
         { id: 1, name: "Smartphone", price: 899.99 },
         { id: 2, name: "Laptop", price: 1299.99 },
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
         { id: 5, name: "Smartwatch", price: 299.99 }
     ];
 
-    // API URL for orders
+
     const apiUrl = 'http://localhost:8085/api/orders';
 
     // Add product row with dropdown

@@ -17,9 +17,9 @@ body {
     min-height: 100vh;
 }
 
-/* Fixed-width centered container */
+
 .container {
-    width: 700px; /* Fixed width */
+    width: 700px;
     margin: 0 auto;
     padding: 10px;
 }
@@ -86,7 +86,7 @@ label {
     font-weight: 600;
 }
 
-/* Required field indicator */
+
 label[for="customerId"]:after,
 label[for="destinationCountry"]:after {
     content: " *";
@@ -127,7 +127,7 @@ button:hover {
     background-color: #2980b9;
 }
 
-/* Submit button styling */
+
 form > button[type="submit"] {
     margin-top: 1rem;
     background-color: var(--secondary-color);
@@ -138,7 +138,7 @@ form > button[type="submit"]:hover {
     background-color: #1a2530;
 }
 
-/* Improved product container with grid layout */
+
 #productContainer {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -190,15 +190,15 @@ form > button[type="submit"]:hover {
     background-color: #c0392b;
 }
 
-/* Notification with close button */
+
 .notification-area {
-    height: 70px; /* Fixed height area for notifications */
+    height: 70px;
     margin-bottom: 10px;
     position: relative;
 }
 
 .alert {
-    padding: 1rem 2.5rem 1rem 1rem; /* Extra padding on right for close button */
+    padding: 1rem 2.5rem 1rem 1rem;
     border-radius: 4px;
     text-align: center;
     font-weight: 500;
@@ -253,10 +253,10 @@ form > button[type="submit"]:hover {
     display: none;
 }
 
-/* Media queries for responsive design */
+
 @media (max-width: 768px) {
     .container {
-        width: 95%; /* Switch to percentage on smaller screens */
+        width: 95%;
     }
 
     #productContainer {

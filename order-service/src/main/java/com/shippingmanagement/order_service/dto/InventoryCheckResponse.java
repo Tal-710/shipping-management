@@ -1,4 +1,4 @@
-// InventoryCheckResponse.java
+
 package com.shippingmanagement.order_service.dto;
 
 import lombok.AllArgsConstructor;

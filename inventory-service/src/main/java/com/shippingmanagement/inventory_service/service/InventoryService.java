@@ -28,7 +28,7 @@ public class InventoryService {
         List<String> unavailableItems = new ArrayList<>();
         boolean allAvailable = true;
 
-        // First, check if all items are available
+
         for (InventoryItemRequest item : request.getItems()) {
             Optional<Inventory> inventoryOptional = inventoryRepository.findByProductId(item.getProductId());
 
@@ -52,7 +52,7 @@ public class InventoryService {
             }
         }
 
-        // If all available and reservation requested, reserve the inventory
+
         if (allAvailable && request.isReserve()) {
             for (InventoryItemRequest item : request.getItems()) {
                 Inventory inventory = inventoryRepository.findByProductId(item.getProductId()).get();

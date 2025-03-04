@@ -41,7 +41,7 @@ public class KafkaStreamConfig {
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
         props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 1000);
 
-        // Configure for processing
+
         props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE_V2);
         props.put(ProducerConfig.ACKS_CONFIG, "all");
 

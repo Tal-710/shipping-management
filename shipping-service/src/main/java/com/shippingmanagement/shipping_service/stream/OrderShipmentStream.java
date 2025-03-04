@@ -48,7 +48,7 @@ public class OrderShipmentStream {
     @SuppressWarnings("unchecked")
     @Bean
     public KStream<String, ShipmentCreated> processOrderStream(StreamsBuilder streamsBuilder) {
-        // Create stream from order-submitted topic
+
         KStream<String, String> orderJsonStream = streamsBuilder.stream(
                 orderSubmittedTopic,
                 Consumed.with(Serdes.String(), Serdes.String())
@@ -129,7 +129,7 @@ public class OrderShipmentStream {
                 .setOrderId(orderEvent.getOrderId())
                 .setCustomerId(orderEvent.getCustomerId())
                 .setDestinationCountry(orderEvent.getDestinationCountry())
-                .setShipId(0) // Using 0 as a marker to indicate no ship was found
+                .setShipId(0)
                 .setDepartureDate(Instant.now())
                 .setCreatedAt(Instant.now())
                 .build();

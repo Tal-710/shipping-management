@@ -40,12 +40,12 @@ public class OrderService {
     public OrderResponse createOrder(OrderRequest orderRequest) {
         log.info("Creating new order with {} items", orderRequest.getOrderItems().size());
 
-        // Check inventory
+
         if (!checkInventory(orderRequest)) {
             throw new InventoryNotAvailableException("Inventory not available for one or more products");
         }
 
-        // Create order
+
         Order order = Order.builder()
                 .customerId(orderRequest.getCustomerId())
                 .destinationCountry(orderRequest.getDestinationCountry())
@@ -64,7 +64,7 @@ public class OrderService {
         Order savedOrder = orderRepository.save(order);
         log.info("Order saved to database with ID: {}", savedOrder.getOrderId());
 
-        // Publish to Kafka
+
         publishOrderSubmitted(savedOrder);
 
         return orderMapper.mapToDto(savedOrder);
@@ -111,7 +111,7 @@ public class OrderService {
     }
 
     private void publishOrderSubmitted(Order order) {
-        // Use existing mapper to convert Order to OrderResponse
+
         OrderResponse orderResponse = orderMapper.mapToDto(order);
 
         // Send the OrderResponse to Kafka
