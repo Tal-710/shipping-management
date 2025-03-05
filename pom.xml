@@ -19,7 +19,8 @@
 		<module>inventory-service</module>
 		<module>order-service</module>
 		<module>shipping-service</module>
-	</modules>
+        <module>notification-service</module>
+    </modules>
 	<url/>
 	<licenses>
 		<license/>
