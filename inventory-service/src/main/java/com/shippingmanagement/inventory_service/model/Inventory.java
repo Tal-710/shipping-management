@@ -23,7 +23,7 @@ public class Inventory {
     private Integer productId;
 
     @Column(name = "quantity_available", nullable = false)
-    private Integer quantityAvailable;
+    private Integer quantity;
 
 
 

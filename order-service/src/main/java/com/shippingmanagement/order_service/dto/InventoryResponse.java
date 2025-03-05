@@ -7,11 +7,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class OrderItemResponse {
-    private Integer id;
+public class InventoryResponse {
+
     private Integer productId;
-    private Integer quantity;
+    private boolean isInStock;
 }
