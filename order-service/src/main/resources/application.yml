@@ -36,4 +36,5 @@ app:
   kafka:
     topics:
       order-submitted: order-submitted
+      order-inventory-unavailable: order-inventory-unavailable
 

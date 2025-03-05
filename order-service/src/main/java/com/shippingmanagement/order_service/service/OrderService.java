@@ -36,15 +36,12 @@ public class OrderService {
     @Value("${app.kafka.topics.order-submitted}")
     private String orderSubmittedTopic;
 
+    @Value("${app.kafka.topics.order-inventory-unavailable}")
+    private String orderInventoryUnavailableTopic;
+
     @Transactional
     public OrderDTO createOrder(OrderRequest orderRequest) {
         log.info("Creating new order with {} items", orderRequest.getOrderItems().size());
-
-
-        if (!checkInventory(orderRequest)) {
-            throw new InventoryNotAvailableException("Inventory not available for one or more products");
-        }
-
 
         Order order = Order.builder()
                 .customerId(orderRequest.getCustomerId())
@@ -63,9 +60,14 @@ public class OrderService {
 
         Order savedOrder = orderRepository.save(order);
         log.info("Order saved to database with ID: {}", savedOrder.getOrderId());
-
-
-        publishOrderSubmitted(savedOrder);
+        try {
+            if (checkInventory(orderRequest)) {
+                publishOrderSubmitted(savedOrder);
+            }
+        } catch (InventoryNotAvailableException e) {
+            publishOrderInventoryUnavailable(savedOrder, e.getMessage());
+            throw e;
+        }
 
         return orderMapper.mapToDto(savedOrder);
     }
@@ -111,16 +113,15 @@ public class OrderService {
     }
 
     private void publishOrderSubmitted(Order order) {
-<<<<<<< HEAD
-
-        OrderResponse orderResponse = orderMapper.mapToDto(order);
-=======
-        // Use existing mapper to convert Order to OrderResponse
         OrderDTO orderDTO = orderMapper.mapToDto(order);
->>>>>>> 4c8b16094ad6143bad0e49aaa3b68ba96f7e441d
-
-        // Send the OrderResponse to Kafka
         kafkaTemplate.send(orderSubmittedTopic, String.valueOf(order.getOrderId()), orderDTO);
         log.info("Published order submitted event for order ID: {}", order.getOrderId());
+    }
+
+    private void publishOrderInventoryUnavailable(Order order, String reason) {
+        OrderDTO orderDTO = orderMapper.mapToDto(order);
+
+        kafkaTemplate.send(orderInventoryUnavailableTopic, String.valueOf(order.getOrderId()), orderDTO);
+        log.info("Published order inventory unavailable event for order ID: {}", order.getOrderId());
     }
 }
