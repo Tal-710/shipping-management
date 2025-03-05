@@ -21,6 +21,28 @@ spring:
     consumer:
       group-id: shipping-service-group
       auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+      properties:
+        schema.registry.url: ${spring.kafka.schema-registry-url}
+        specific.avro.reader: true
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+      properties:
+        schema.registry.url: ${spring.kafka.schema-registry-url}
+        auto.register.schemas: true
+
+    listener:
+      ack-mode: RECORD
+      missing-topics-fatal: false
+
+    retry:
+      topic:
+        dlt-suffix: -dlt
+        retry-suffix: -retry
 
     streams:
       application-id: ${spring.application.name}-streams
@@ -38,11 +60,12 @@ app:
       shipment-created: shipment-created
       unassigned-shipping-orders: unassigned-shipping-orders-topic
 
-
 logging:
   level:
     com.shippingmanagement: INFO
     org.apache.kafka: WARN
     org.apache.kafka.streams: INFO
+    org.springframework.kafka.retrytopic: DEBUG
+
 server:
   port: 8090

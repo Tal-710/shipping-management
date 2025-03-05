@@ -41,6 +41,10 @@ public class ShipmentService {
         log.info("Updated ship {} total orders to {}", ship.getShipId(), ship.getTotalOrders());
         return updatedShip;
     }
+    @Transactional
+    public void markOrderForManualProcessing(Integer orderId) {
+        log.info("Order {} needs manual processing after failed retries", orderId);
+    }
 
 
     @Transactional
