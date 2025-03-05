@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', function() {
         { id: 2, name: "Laptop", price: 1299.99 },
         { id: 3, name: "Headphones", price: 249.99 },
         { id: 4, name: "Tablet", price: 499.99 },
-        { id: 5, name: "Smartwatch", price: 299.99 }
+        { id: 5, name: "Smartwatch", price: 299.99 },
+        { id: 6, name: "Clock", price: 49.99 }
     ];
 
 
