@@ -36,3 +36,5 @@ app:
   kafka:
     topics:
       order-submitted: order-submitted
+      order-inventory-retry: order-inventory-retry
+      order-inventory-dlt: order-inventory-dlt

@@ -9,10 +9,7 @@ import com.shippingmanagement.order_service.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.annotation.RetryableTopic;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -38,42 +35,50 @@ public class OrderService {
     @Value("${app.kafka.topics.order-submitted}")
     private String orderSubmittedTopic;
 
+    @Value("${app.kafka.topics.order-inventory-dlt}")
+    private String orderDltTopic;
+
 
     public void createOrder(OrderRequest orderRequest) {
         log.info("Creating new order with {} items", orderRequest.getOrderItems().size());
         Order order = buildOrder(orderRequest);
-        log.info("Order had been generated:");
+        log.info("Order had been generated: {} ", order.getOrderId());
         try {
             attemptOrderPlacement(order);
-
-
         } catch (InventoryNotAvailableException e) {
+            log.warn("Inventory failure for order {}: {}", order.getOrderId(), e.getMessage());
             handleInventoryFailure(order, e.getMessage());
-            throw e;
         }
     }
 
     private boolean checkInventory(List<OrderItemRequestDto> orderItems) {
-        InventoryResponse[] inventoryResponses = webClientBuilder.build()
-                .post()
-                .uri(inventoryServiceUrl + "/api/inventory/check")
-                .bodyValue(orderItems)
-                .retrieve()
-                .bodyToMono(InventoryResponse[].class)
-                .block();
+        try {
+            InventoryResponse[] inventoryResponses = webClientBuilder.build()
+                    .post()
+                    .uri(inventoryServiceUrl + "/api/inventory/check")
+                    .bodyValue(orderItems)
+                    .retrieve()
+                    .bodyToMono(InventoryResponse[].class)
+                    .block();
 
-        log.info("Posted");
-        isResponseValid(inventoryResponses);
-        log.info("Inventory check successful");
+            if (inventoryResponses == null) {
+                throw new InventoryNotAvailableException("No response from inventory service");
+            }
 
-        return Arrays.stream(inventoryResponses)
-                .allMatch(InventoryResponse::isInStock);
-    }
+            boolean allAvailable = Arrays.stream(inventoryResponses)
+                    .allMatch(InventoryResponse::isInStock);
 
-    private void isResponseValid(InventoryResponse[] inventoryResponses) {
-        if (inventoryResponses == null) {
-            log.error("Inventory check returned null response");
-            throw new InventoryNotAvailableException("No response from inventory service");
+            if (!allAvailable) {
+                log.warn("Stock unavailable for order.");
+                throw new InventoryNotAvailableException("Inventory out of quantity for certain product");
+
+            }
+
+            return true;
+
+        } catch (Exception e) {
+            log.error("Failed to check inventory: {}", e.getMessage());
+            throw new InventoryNotAvailableException("Inventory service unavailable");
         }
     }
 
@@ -112,40 +117,24 @@ public class OrderService {
             log.info("All products available");
             saveOrder(order);
             publishOrderSubmitted(order);
-        } else {
-            log.info("Not all products are in stock");
         }
     }
 
 
     private void publishOrderSubmitted(Order order) {
-        OrderPlacedEvent orderPlacedEvent = new OrderPlacedEvent(
-                order.getOrderId(),
-                order.getCustomerId(),
-                order.getDestinationCountry(),
-                order.getCreatedAt(),
-                order.getOrderItems().stream()
-                        .map(item -> new OrderItemRequestDto(item.getProductId(), item.getQuantity()))
-                        .collect(Collectors.toList())
-        );
+        OrderPlacedEvent orderPlacedEvent = buildOrderPlacedEvent(order);
         kafkaTemplate.send(orderSubmittedTopic, String.valueOf(order.getOrderId()), orderPlacedEvent);
         log.info("Published order submitted event for order ID: {}", order.getOrderId());
     }
 
     private void handleInventoryFailure(Order order, String reason) {
-        log.warn("Inventory check failed for order ID: {}. Retrying via Kafka topic.", order.getOrderId());
-        publishOrderInventoryUnavailable(order, reason);
+        log.warn("Order {} has failed", order.getOrderId());
+        // Might need to check reason and push it
+        kafkaTemplate.send(orderDltTopic, String.valueOf(order.getOrderId()),  buildOrderPlacedEvent(order));
     }
 
-
-
-    @RetryableTopic(
-            attempts = "3",
-            backoff = @Backoff(delay = 5000, multiplier = 2.0),
-            dltTopicSuffix = "-dlt")
-    @KafkaListener(topics="order-inventory-retry", groupId = "order-group")
-    private void publishOrderInventoryUnavailable(Order order, String reason) {
-        OrderPlacedEvent orderRetryEvent = new OrderPlacedEvent(
+    private OrderPlacedEvent buildOrderPlacedEvent(Order order) {
+        return new OrderPlacedEvent(
                 order.getOrderId(),
                 order.getCustomerId(),
                 order.getDestinationCountry(),
@@ -154,7 +143,6 @@ public class OrderService {
                         .map(item -> new OrderItemRequestDto(item.getProductId(), item.getQuantity()))
                         .collect(Collectors.toList())
         );
-        kafkaTemplate.send("order-inventory-retry", String.valueOf(order.getOrderId()), orderRetryEvent);
     }
 
     private void saveOrder(Order order) {
