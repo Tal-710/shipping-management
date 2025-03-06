@@ -1,17 +1,18 @@
-package com.shippingmanagement.inventory_service.dto;
+package com.shippingmanagement.order_service.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class InventoryItemRequest {
+//@Builder
+public class OrderItemRequestDto {
 
     @NotNull(message = "Product ID must be provided")
     private Integer productId;

@@ -1,13 +1,15 @@
 package com.shippingmanagement.inventory_service.controller;
 
-import com.shippingmanagement.inventory_service.dto.InventoryCheckRequest;
-import com.shippingmanagement.inventory_service.dto.InventoryCheckResponse;
+import com.shippingmanagement.inventory_service.dto.InventoryResponse;
+import com.shippingmanagement.inventory_service.dto.OrderItemRequestDto;
 import com.shippingmanagement.inventory_service.service.InventoryService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/inventory")
@@ -18,9 +20,14 @@ public class InventoryController {
     private final InventoryService inventoryService;
 
     @PostMapping("/check")
-    public ResponseEntity<InventoryCheckResponse> checkInventory(@Valid @RequestBody InventoryCheckRequest request) {
-        log.info("Received inventory check request for {} items", request.getItems().size());
-        InventoryCheckResponse response = inventoryService.checkAndReserveInventory(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<List<InventoryResponse>> checkInventory(@RequestBody List<OrderItemRequestDto> orderItems) {
+        log.info("Received request to check inventory");
+        List<InventoryResponse> inventoryResponses = inventoryService.checkAndReduceInventory(orderItems);
+        if (inventoryResponses.stream().anyMatch(response -> !response.isInStock())) {
+            log.info("Product not enough in inventory");
+            return ResponseEntity.badRequest().body(inventoryResponses);
+        }
+
+        return ResponseEntity.ok(inventoryResponses);
     }
 }
