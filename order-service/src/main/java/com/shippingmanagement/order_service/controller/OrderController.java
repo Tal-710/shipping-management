@@ -1,7 +1,6 @@
 package com.shippingmanagement.order_service.controller;
 
 import com.shippingmanagement.order_service.dto.OrderRequest;
-import com.shippingmanagement.order_service.dto.OrderDTO;
 import com.shippingmanagement.order_service.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,8 +17,8 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderRequest orderRequest) {
-        OrderDTO createdOrder = orderService.createOrder(orderRequest);
-        return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
+    public ResponseEntity<String> createOrder(@Valid @RequestBody OrderRequest orderRequest) {
+        orderService.createOrder(orderRequest);
+        return new ResponseEntity<>("Order placed successfuly", HttpStatus.CREATED);
     }
 }

@@ -16,6 +16,7 @@ import java.util.List;
 @Builder
 public class OrderRequest {
 
+    @NotNull
     private String customerId;
 
     @NotNull(message = "Destination country must be provided")
@@ -23,5 +24,5 @@ public class OrderRequest {
 
     @NotEmpty(message = "Order must contain at least one item")
     @Valid
-    private List<OrderItemRequest> orderItems;
+    private List<OrderItemRequestDto> orderItems;
 }
