@@ -43,7 +43,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     addProductBtn.click();
 
-
     orderForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -64,10 +63,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const productRows = document.querySelectorAll('.product-row');
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 41415144b7abbc828716a7db8b3d7c4aaa2c3735
         if (productRows.length === 0) {
             showAlert('Please add at least one product', 'danger');
             scrollToNotification();
@@ -104,39 +99,14 @@ document.addEventListener('DOMContentLoaded', function() {
             orderItems: orderItems
         };
 
-        // Show processing message
         showAlert('Processing your order...', 'success', false);
         scrollToNotification();
 
-<<<<<<< HEAD
-        // Show success message after a brief delay
         setTimeout(() => {
             showAlert('Order submitted successfully! View details in Order Status', 'success', true);
-=======
-        fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(order)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok: ' + response.statusText);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Order created successfully:', data);
-
-            showAlert(`Order #${data.orderId} submitted successfully! View details in Order Status`, 'success', true);
-            scrollToNotification();
-
->>>>>>> 41415144b7abbc828716a7db8b3d7c4aaa2c3735
             resetForm();
         }, 1500);
 
-        // Try to send the data to the backend (but we don't care if it succeeds)
         try {
             fetch(apiUrl, {
                 method: 'POST',
@@ -145,7 +115,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             console.log('Order sent to backend');
         } catch (e) {
-            // We don't care if it fails
             console.log('Error sending order (ignored)');
         }
     });
