@@ -17,7 +17,7 @@ import java.util.Optional;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class ShipmentConsumer {
+public class ShipmentUassignedConsumer {
 
     private final ShipmentService shipmentService;
 

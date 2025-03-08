@@ -11,7 +11,6 @@ import jakarta.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-//@Builder
 public class OrderItemRequestDto {
 
     @NotNull(message = "Product ID must be provided")

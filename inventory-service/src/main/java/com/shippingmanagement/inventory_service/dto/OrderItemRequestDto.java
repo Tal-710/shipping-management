@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-//@Builder
 public class OrderItemRequestDto {
 
     @NotNull(message = "Product ID must be provided")

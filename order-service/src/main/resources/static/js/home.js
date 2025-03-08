@@ -17,15 +17,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const apiUrl = 'http://localhost:8085/api/orders';
 
-    // Add product row with dropdown
     addProductBtn.addEventListener('click', function() {
-        // Create product dropdown
         let productOptions = '<option value="">Select Product</option>';
         products.forEach(product => {
             productOptions += `<option value="${product.id}">${product.name} - $${product.price}</option>`;
         });
 
-        // Create product div
         const productDiv = document.createElement('div');
         productDiv.className = 'product-row';
 
@@ -39,16 +36,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         productContainer.appendChild(productDiv);
 
-        // Add event listener to remove button
         productDiv.querySelector('.btn-remove').addEventListener('click', function() {
             productContainer.removeChild(productDiv);
         });
     });
 
-    // Add initial product row
     addProductBtn.click();
 
-    // Form submission
+
     orderForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -69,6 +64,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const productRows = document.querySelectorAll('.product-row');
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 41415144b7abbc828716a7db8b3d7c4aaa2c3735
         if (productRows.length === 0) {
             showAlert('Please add at least one product', 'danger');
             scrollToNotification();
@@ -109,9 +108,31 @@ document.addEventListener('DOMContentLoaded', function() {
         showAlert('Processing your order...', 'success', false);
         scrollToNotification();
 
+<<<<<<< HEAD
         // Show success message after a brief delay
         setTimeout(() => {
             showAlert('Order submitted successfully! View details in Order Status', 'success', true);
+=======
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(order)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Order created successfully:', data);
+
+            showAlert(`Order #${data.orderId} submitted successfully! View details in Order Status`, 'success', true);
+            scrollToNotification();
+
+>>>>>>> 41415144b7abbc828716a7db8b3d7c4aaa2c3735
             resetForm();
         }, 1500);
 
