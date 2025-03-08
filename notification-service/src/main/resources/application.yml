@@ -45,12 +45,12 @@ spring:
 app:
   kafka:
     topics:
-      # Input topics
       shipment-created: shipment-created
       unassigned-shipping-orders: unassigned-shipping-orders-topic
       unassigned-shipping-orders-dlt: unassigned-shipping-orders-topic-dlt
+      order-submitted: order-submitted
+      order-inventory-dlt: order-inventory-dlt
 
-      # Output topics
       order-status: order-status-topic
       latest-order-status: latest-order-status-topic
 

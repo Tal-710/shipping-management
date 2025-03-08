@@ -19,15 +19,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const apiUrl = 'http://localhost:8085/api/orders';
 
-    // Add product row with dropdown
     addProductBtn.addEventListener('click', function() {
-        // Create product dropdown
         let productOptions = '<option value="">Select Product</option>';
         products.forEach(product => {
             productOptions += `<option value="${product.id}">${product.name} - $${product.price}</option>`;
         });
 
-        // Create product div
         const productDiv = document.createElement('div');
         productDiv.className = 'product-row';
 
@@ -41,47 +38,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
         productContainer.appendChild(productDiv);
 
-        // Add event listener to remove button
         productDiv.querySelector('.btn-remove').addEventListener('click', function() {
             productContainer.removeChild(productDiv);
         });
     });
 
-    // Add initial product row
     addProductBtn.click();
 
-    // Form submission
+
     orderForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
         const customerId = document.getElementById('customerId').value.trim();
         const destinationCountry = document.getElementById('destinationCountry').value;
 
-        // Validate customer ID
         if (!customerId) {
             showAlert('Please enter a Customer ID', 'danger');
             scrollToNotification();
             return;
         }
 
-        // Validate destination country
         if (!destinationCountry) {
             showAlert('Please select a destination country', 'danger');
             scrollToNotification();
             return;
         }
 
-        // Get all product rows
         const productRows = document.querySelectorAll('.product-row');
 
-        // Validate at least one product
+
         if (productRows.length === 0) {
             showAlert('Please add at least one product', 'danger');
             scrollToNotification();
             return;
         }
 
-        // Create order items array
         const orderItems = [];
         let isValid = true;
 
@@ -100,14 +91,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // Validate all products have ID and quantity
         if (!isValid) {
             showAlert('Please fill in all product details', 'danger');
             scrollToNotification();
             return;
         }
 
-        // Create order object
         const order = {
             customerId: customerId,
             destinationCountry: destinationCountry,
@@ -138,11 +127,9 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             console.log('Order created successfully:', data);
 
-            // Show persistent success notification with order ID
             showAlert(`Order #${data.orderId} submitted successfully! View details in Order Status`, 'success', true);
             scrollToNotification();
 
-            // Reset the form
             resetForm();
         })
         .catch(error => {
@@ -152,27 +139,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Function to scroll to the notification area
     function scrollToNotification() {
-        // Scroll to the top of the page smoothly
         window.scrollTo({
             top: 0,
             behavior: 'smooth'
         });
     }
 
-    // Reset form after successful submission
     function resetForm() {
         document.getElementById('customerId').value = '';
         document.getElementById('destinationCountry').value = '';
 
-        // Remove all product rows except the first one
         const productRows = document.querySelectorAll('.product-row');
         for (let i = 1; i < productRows.length; i++) {
             productContainer.removeChild(productRows[i]);
         }
 
-        // Reset the first product row
         const firstRow = document.querySelector('.product-row');
         if (firstRow) {
             firstRow.querySelector('.product-select').value = '';
@@ -180,9 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Show alert message - if persistent is true, doesn't auto-dismiss
     function showAlert(message, type, persistent = false) {
-        // Clear any existing timeout
         if (window.alertTimeout) {
             clearTimeout(window.alertTimeout);
         }
@@ -190,13 +170,11 @@ document.addEventListener('DOMContentLoaded', function() {
         alertMessage.textContent = message;
         orderAlert.className = `alert alert-${type}`;
 
-        // Only auto-hide for non-persistent alerts
         if (!persistent) {
             window.alertTimeout = setTimeout(dismissAlert, 3000);
         }
     }
 
-    // Global function to dismiss the alert
     window.dismissAlert = function() {
         orderAlert.className = 'alert hidden';
     };
