@@ -129,7 +129,6 @@ public class OrderService {
 
     private void handleInventoryFailure(Order order, String reason) {
         log.warn("Order {} has failed", order.getOrderId());
-        // Might need to check reason and push it
         kafkaTemplate.send(orderDltTopic, String.valueOf(order.getOrderId()),  buildOrderPlacedEvent(order));
     }
 
