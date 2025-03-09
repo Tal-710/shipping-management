@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status - Shipping Management System</title>
+    <link rel="stylesheet" th:href="@{/css/monitor.css}">
+</head>
+<body>
+<header>
+    <div class="container">
+        <h1>Shipping Management System</h1>
+    </div>
+</header>
+
+<nav>
+    <a th:href="@{/}">Create Order</a>
+    <a th:href="@{/order-status}" class="active">Order Status</a>
+<!--    <a th:href="@{/inventory-status}">Inventory Status</a>-->
+<!--    <a th:href="@{/shipping-status}">Shipping Status</a>-->
+</nav>
+
+<div class="container">
+    <div class="notification-area">
+        <div id="monitorAlert" class="alert hidden">
+            <span id="alertMessage"></span>
+            <button type="button" class="close-btn" onclick="dismissAlert()">&times;</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">Order Status Monitor</div>
+        <div class="card-body">
+            <div class="filter-controls">
+                <div class="form-group">
+                    <label for="statusFilter">Filter by Status:</label>
+                    <select id="statusFilter">
+                        <option value="all">All Statuses</option>
+                        <option value="1">ORDER_RECEIVED</option>
+                        <option value="2">ORDER_PROCESS</option>
+                        <option value="3">SHIPPED_SUCCESSFUL</option>
+                        <option value="4">NO_SHIP_AVAILABLE</option>
+                        <option value="5">ORDER_FAILED</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="searchInput">Search by Customer ID:</label>
+                    <input type="text" id="searchInput" placeholder="Enter Customer ID">
+                </div>
+                <button id="refreshBtn" class="btn-refresh">Refresh Data</button>
+            </div>
+
+            <div class="table-container">
+                <table id="ordersTable">
+                    <thead>
+                    <tr>
+                        <th>Rows</th>
+                        <th>Order ID</th>
+                        <th>Customer ID</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                    </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="pagination" class="pagination">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/monitor.js}"></script>
+</body>
+</html>

@@ -12,7 +12,7 @@ public class HomeController {
 
     @GetMapping("/order-status")
     public String orderStatus() {
-        return "order-status";
+        return "monitor";
     }
 
     @GetMapping("/inventory-status")

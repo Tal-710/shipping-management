@@ -13,6 +13,8 @@ import java.util.List;
 @RequestMapping("/api/order-status")
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "*")
+
 public class OrderStatusController {
 
     private final OrderStatusService orderStatusService;
