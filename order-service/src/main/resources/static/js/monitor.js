@@ -7,12 +7,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const monitorAlert = document.getElementById('monitorAlert');
     const alertMessage = document.getElementById('alertMessage');
 
-    // Constants
     const ITEMS_PER_PAGE = 10;
     const API_URL = 'http://localhost:8091/api/order-status/all';
 
     const STATUS_TO_CODE = {
-        'ORDER_RECEIVED': 1,
         'ORDER_PROCESS': 2,
         'SHIPPED_SUCCESSFUL': 3,
         'NO_SHIP_AVAILABLE': 4,
@@ -59,18 +57,15 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Apply filters and search
     function applyFilters() {
         const statusValue = statusFilter.value;
         const searchValue = searchInput.value.toLowerCase();
 
         filteredOrders = orders.filter(order => {
-            // Status filter
             if (statusValue !== 'all' && order.status_code !== parseInt(statusValue)) {
                 return false;
             }
 
-            // Search filter - only for customer_id
             if (searchValue) {
                 const customerId = String(order.customer_id).toLowerCase();
                 return customerId.includes(searchValue);
@@ -84,7 +79,6 @@ document.addEventListener('DOMContentLoaded', function() {
         renderPagination();
     }
 
-    // Render table with current page data
     function renderTable() {
         ordersTableBody.innerHTML = '';
 
@@ -105,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         pageData.forEach((order, index) => {
             const row = document.createElement('tr');
-            const displayIndex = startIndex + index + 1; // Calculate the continuous index
+            const displayIndex = startIndex + index + 1;
 
             row.innerHTML = `
                 <td>${displayIndex}</td>
@@ -123,7 +117,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Render pagination
     function renderPagination() {
         pagination.innerHTML = '';
 
@@ -133,7 +126,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Previous button
         const prevBtn = document.createElement('button');
         prevBtn.textContent = '←';
         prevBtn.disabled = currentPage === 1;
@@ -146,7 +138,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         pagination.appendChild(prevBtn);
 
-        // Page buttons
         let startPage = Math.max(1, currentPage - 2);
         let endPage = Math.min(totalPages, startPage + 4);
 
@@ -166,7 +157,6 @@ document.addEventListener('DOMContentLoaded', function() {
             pagination.appendChild(pageBtn);
         }
 
-        // Next button
         const nextBtn = document.createElement('button');
         nextBtn.textContent = '→';
         nextBtn.disabled = currentPage === totalPages;

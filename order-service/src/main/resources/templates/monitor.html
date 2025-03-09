@@ -16,8 +16,6 @@
 <nav>
     <a th:href="@{/}">Create Order</a>
     <a th:href="@{/order-status}" class="active">Order Status</a>
-<!--    <a th:href="@{/inventory-status}">Inventory Status</a>-->
-<!--    <a th:href="@{/shipping-status}">Shipping Status</a>-->
 </nav>
 
 <div class="container">
@@ -36,11 +34,11 @@
                     <label for="statusFilter">Filter by Status:</label>
                     <select id="statusFilter">
                         <option value="all">All Statuses</option>
-                        <option value="1">ORDER_RECEIVED</option>
                         <option value="2">ORDER_PROCESS</option>
                         <option value="3">SHIPPED_SUCCESSFUL</option>
                         <option value="4">NO_SHIP_AVAILABLE</option>
                         <option value="5">ORDER_FAILED</option>
+                        <option value="6">NO_SHIP_AVAILABLE_DLT</option>
                     </select>
                 </div>
                 <div class="form-group">

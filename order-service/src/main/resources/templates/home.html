@@ -16,12 +16,9 @@
 <nav>
     <a th:href="@{/}" class="active">Create Order</a>
     <a th:href="@{/order-status}">Order Status</a>
-    <a th:href="@{/inventory-status}">Inventory Status</a>
-    <a th:href="@{/shipping-status}">Shipping Status</a>
 </nav>
 
 <div class="container">
-    <!-- Notification area with fixed height -->
     <div class="notification-area">
         <div id="orderAlert" class="alert hidden">
             <span id="alertMessage"></span>
@@ -43,12 +40,11 @@
                     <select id="destinationCountry" name="destinationCountry" required>
                         <option value="">Select Country</option>
                         <option value="United States">United States</option>
-                        <option value="United Kingdom">United Kingdom</option>
-                        <option value="CA">Canada</option>
+                        <option value="France">France</option>
+                        <option value="Spain">Spain</option>
                         <option value="AU">Australia</option>
-                        <option value="DE">Germany</option>
-                        <option value="FR">France</option>
-                        <option value="JP">Japan</option>
+                        <option value="Germany">Germany</option>
+                        <option value="Japan">Japan</option>
                         <option value="CN">China</option>
                         <option value="BR">Brazil</option>
                     </select>

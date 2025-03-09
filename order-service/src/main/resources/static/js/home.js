@@ -7,12 +7,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const notificationArea = document.querySelector('.notification-area');
 
     const products = [
-        { id: 1, name: "Smartphone", price: 899.99 },
-        { id: 2, name: "Laptop", price: 1299.99 },
-        { id: 3, name: "Headphones", price: 249.99 },
-        { id: 4, name: "Tablet", price: 499.99 },
-        { id: 5, name: "Smartwatch", price: 299.99 },
-        { id: 6, name: "Clock", price: 49.99 }
+        { id: 1, name: "Smartphone"},
+        { id: 2, name: "Laptop"},
+        { id: 3, name: "Headphones"},
+        { id: 4, name: "Tablet"},
+        { id: 5, name: "Smartwatch"},
+        { id: 6, name: "Monitor"}
     ];
 
     const apiUrl = 'http://localhost:8085/api/orders';
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     addProductBtn.addEventListener('click', function() {
         let productOptions = '<option value="">Select Product</option>';
         products.forEach(product => {
-            productOptions += `<option value="${product.id}">${product.name} - $${product.price}</option>`;
+            productOptions += `<option value="${product.id}">${product.name}</option>`;
         });
 
         const productDiv = document.createElement('div');

@@ -261,6 +261,9 @@ tbody tr:hover {
 .status-5 {
     background-color: var(--danger-color);
 }
+.status-6 {
+    background-color:black;
+}
 
 .action-btn {
     padding: 5px 10px;
