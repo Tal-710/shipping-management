@@ -6,24 +6,31 @@ import com.shippingmanagement.shipping_service.service.ShipmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.RetryableTopic;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Component;
 
+import java.time.ZoneId;
 import java.util.Optional;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class ShipmentConsumer {
+public class ShipmentUnassignedConsumer {
 
     private final ShipmentService shipmentService;
+    private final KafkaTemplate<String, ShipmentCreated> kafkaTemplate;
+
+    @Value("${app.kafka.topics.shipment-created}")
+    private String shipmentCreatedTopic;
 
     @RetryableTopic(
             attempts = "3",
-            backoff = @Backoff(delay = 1000),
+            backoff = @Backoff(delay = 5000),
             dltTopicSuffix = "-dlt"
     )
     @KafkaListener(topics = "${app.kafka.topics.unassigned-shipping-orders}")
@@ -44,8 +51,18 @@ public class ShipmentConsumer {
                     shipment.getDestinationCountry());
         }
 
-        log.info("Ship found for previously unassigned order {}: Ship ID {}",
-                shipment.getOrderId(), shipOptional.get().getShipId());
+        ShipTracking ship = shipOptional.get();
+        ShipmentCreated updatedShipment = ShipmentCreated.newBuilder(shipment)
+                .setShipId(ship.getShipId())
+                .setDepartureDate(ship.getDepartureDate().atZone(ZoneId.systemDefault()).toInstant())
+                .build();
+
+        kafkaTemplate.send(shipmentCreatedTopic,
+                String.valueOf(shipment.getOrderId()),
+                updatedShipment);
+
+        log.info("Ship found for previously unassigned order {}: Ship ID {}. Sent to shipment-created topic.",
+                shipment.getOrderId(), ship.getShipId());
     }
 
     @DltHandler
