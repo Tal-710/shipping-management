@@ -1,7 +1,6 @@
 package com.shippingmanagement.order_service.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +10,6 @@ import jakarta.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-//@Builder
 public class OrderItemRequestDto {
 
     @NotNull(message = "Product ID must be provided")

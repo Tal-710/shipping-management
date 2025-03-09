@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // DOM Elements
     const ordersTableBody = document.getElementById('ordersTableBody');
     const statusFilter = document.getElementById('statusFilter');
     const searchInput = document.getElementById('searchInput');
@@ -12,39 +11,40 @@ document.addEventListener('DOMContentLoaded', function() {
     const ITEMS_PER_PAGE = 10;
     const API_URL = 'http://localhost:8091/api/order-status/all';
 
-    // We'll use the status from the API response directly instead of mapping codes
-    const STATUS_CODES = {
-        1: 'ORDER_RECEIVED',
-        2: 'ORDER_PROCESS',
-        3: 'SHIPPED_SUCCESSFUL',
-        4: 'NO_SHIP_AVAILABLE',
-        5: 'ORDER_FAILED',
-        6: 'NO_SHIP_AVAILABLE_DLT'
+    const STATUS_TO_CODE = {
+        'ORDER_RECEIVED': 1,
+        'ORDER_PROCESS': 2,
+        'SHIPPED_SUCCESSFUL': 3,
+        'NO_SHIP_AVAILABLE': 4,
+        'ORDER_FAILED': 5,
+        'NO_SHIP_AVAILABLE_DLT': 6
     };
 
-    // State
     let orders = [];
     let filteredOrders = [];
     let currentPage = 1;
 
-    // Fetch orders from API
     function fetchOrders() {
         showAlert('Loading orders...', 'alert-success');
 
-        fetch(API_URL)
+        fetch(API_URL, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error(`Network response was not ok: ${response.status}`);
                 }
                 return response.json();
             })
             .then(data => {
-                // Transform API data to match our expected format
                 orders = data.map(item => ({
                     id: item.id,
                     order_id: item.orderId,
-                    customer_id: item.customerId,
-                    status_code: item.statusCode,
+                    customer_id: item.customerId || 'N/A',
+                    status_code: STATUS_TO_CODE[item.status] || 1,
                     status: item.status,
                     created_at: item.createdAt
                 }));
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Search filter - only for customer_id
             if (searchValue) {
-                const customerId = order.customer_id.toLowerCase();
+                const customerId = String(order.customer_id).toLowerCase();
                 return customerId.includes(searchValue);
             }
 
@@ -103,16 +103,17 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        pageData.forEach(order => {
+        pageData.forEach((order, index) => {
             const row = document.createElement('tr');
+            const displayIndex = startIndex + index + 1; // Calculate the continuous index
 
             row.innerHTML = `
-                <td>${order.id}</td>
+                <td>${displayIndex}</td>
                 <td>${order.order_id}</td>
                 <td>${order.customer_id}</td>
                 <td>
                     <span class="status-badge status-${order.status_code}">
-                        ${order.status || STATUS_CODES[order.status_code]}
+                        ${order.status}
                     </span>
                 </td>
                 <td>${formatDate(order.created_at)}</td>
@@ -122,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Render pagination controls
+    // Render pagination
     function renderPagination() {
         pagination.innerHTML = '';
 
@@ -179,31 +180,29 @@ document.addEventListener('DOMContentLoaded', function() {
         pagination.appendChild(nextBtn);
     }
 
-    // Format date
     function formatDate(dateString) {
         const date = new Date(dateString);
         const options = {
             year: 'numeric',
             month: 'short',
-            day: 'numeric'
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
         };
 
         return date.toLocaleDateString('en-US', options);
     }
 
-    // Show alert message
     function showAlert(message, className) {
         monitorAlert.className = 'alert ' + className;
         alertMessage.textContent = message;
         monitorAlert.classList.remove('hidden');
     }
 
-    // Dismiss alert
     function dismissAlert() {
         monitorAlert.classList.add('hidden');
     }
 
-    // Event listeners
     statusFilter.addEventListener('change', applyFilters);
     searchInput.addEventListener('input', applyFilters);
     refreshBtn.addEventListener('click', fetchOrders);

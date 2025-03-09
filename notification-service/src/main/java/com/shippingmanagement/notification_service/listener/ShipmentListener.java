@@ -3,6 +3,8 @@ package com.shippingmanagement.notification_service.listener;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shippingmanagement.notification_service.dto.OrderStatus;
 import com.shippingmanagement.notification_service.dto.OrderStatusEvent;
+import com.shippingmanagement.notification_service.service.OrderStatusService;
+import com.shippingmanagement.notification_service.util.StatusCodeMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -21,6 +23,8 @@ public class ShipmentListener {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
+    private final OrderStatusService orderStatusService;
+    private final StatusCodeMapper statusCodeMapper;
 
     @Value("${app.kafka.topics.order-status}")
     private String orderStatusTopic;
@@ -28,10 +32,10 @@ public class ShipmentListener {
     @KafkaListener(topics = "${app.kafka.topics.shipment-created}")
     public void handleShipmentCreated(ConsumerRecord<String, Object> record) {
         try {
-            // Use reflection to extract data safely without class casting
+
             Object shipment = record.value();
 
-            // Extract values using reflection to avoid class casting
+
             int orderId = getIntValue(shipment, "getOrderId");
             String customerId = getStringValue(shipment, "getCustomerId");
             String destination = getStringValue(shipment, "getDestinationCountry");
@@ -39,7 +43,7 @@ public class ShipmentListener {
 
             log.info("Received shipment created: order={}, ship={}", orderId, shipId);
 
-            // Create status event
+
             OrderStatusEvent event = OrderStatusEvent.builder()
                     .orderId(orderId)
                     .customerId(customerId)
@@ -50,7 +54,17 @@ public class ShipmentListener {
                     .timestamp(LocalDateTime.now())
                     .build();
 
-            // Send to order status topic
+
+            com.shippingmanagement.notification_service.model.OrderStatus savedStatus =
+                    com.shippingmanagement.notification_service.model.OrderStatus.builder()
+                            .orderId(orderId)
+                            .customerId(customerId)
+                            .statusCode(statusCodeMapper.getStatusId(event.getStatus()))
+                            .createdAt(LocalDateTime.now())
+                            .build();
+
+            orderStatusService.saveOrderStatus(savedStatus);
+
             String json = objectMapper.writeValueAsString(event);
             kafkaTemplate.send(orderStatusTopic, String.valueOf(orderId), json);
 
@@ -62,7 +76,6 @@ public class ShipmentListener {
     @KafkaListener(topics = "${app.kafka.topics.unassigned-shipping-orders}")
     public void handleUnassignedShipment(ConsumerRecord<String, Object> record) {
         try {
-
             Object shipment = record.value();
 
             int orderId = getIntValue(shipment, "getOrderId");
@@ -70,6 +83,7 @@ public class ShipmentListener {
             String destination = getStringValue(shipment, "getDestinationCountry");
 
             log.info("Received unassigned shipment: order={}", orderId);
+
 
             OrderStatusEvent event = OrderStatusEvent.builder()
                     .orderId(orderId)
@@ -80,6 +94,17 @@ public class ShipmentListener {
                     .shipId(0)
                     .timestamp(LocalDateTime.now())
                     .build();
+
+            com.shippingmanagement.notification_service.model.OrderStatus savedStatus =
+                    com.shippingmanagement.notification_service.model.OrderStatus.builder()
+                            .orderId(orderId)
+                            .customerId(customerId)
+                            .statusCode(statusCodeMapper.getStatusId(event.getStatus()))
+                            .createdAt(LocalDateTime.now())
+                            .build();
+
+            orderStatusService.saveOrderStatus(savedStatus);
+
 
             String json = objectMapper.writeValueAsString(event);
             kafkaTemplate.send(orderStatusTopic, String.valueOf(orderId), json);
@@ -106,77 +131,72 @@ public class ShipmentListener {
                 log.warn("Could not extract fields from DLT message: {}", e.getMessage());
                 String key = record.key();
 
+
                 OrderStatusEvent event = OrderStatusEvent.builder()
                         .orderId(key != null ? Integer.parseInt(key) : 0)
                         .customerId("unknown")
-                        .status(OrderStatus.ORDER_FAILED)
+                        .status(OrderStatus.NO_SHIP_AVAILABLE_DLT)
                         .message("Message processing failed and sent to DLT")
                         .destination("unknown")
                         .shipId(0)
                         .timestamp(LocalDateTime.now())
                         .build();
 
+
+                com.shippingmanagement.notification_service.model.OrderStatus savedStatus =
+                        com.shippingmanagement.notification_service.model.OrderStatus.builder()
+                                .orderId(event.getOrderId())
+                                .customerId("unknown")
+                                .statusCode(statusCodeMapper.getStatusId(event.getStatus()))
+                                .createdAt(LocalDateTime.now())
+                                .build();
+
+                orderStatusService.saveOrderStatus(savedStatus);
+
+
                 String json = objectMapper.writeValueAsString(event);
                 kafkaTemplate.send(orderStatusTopic, key != null ? key : "0", json);
                 return;
             }
 
-            log.info("Received failed shipment from DLT: order={}", orderId);
 
             OrderStatusEvent event = OrderStatusEvent.builder()
                     .orderId(orderId)
                     .customerId(customerId)
                     .status(OrderStatus.NO_SHIP_AVAILABLE_DLT)
-                    .message("All retry attempts failed")
+                    .message("Shipping assignment failed and sent to DLT")
                     .destination(destination)
                     .shipId(0)
                     .timestamp(LocalDateTime.now())
                     .build();
 
+            com.shippingmanagement.notification_service.model.OrderStatus savedStatus =
+                    com.shippingmanagement.notification_service.model.OrderStatus.builder()
+                            .orderId(orderId)
+                            .customerId(customerId)
+                            .statusCode(statusCodeMapper.getStatusId(event.getStatus()))
+                            .createdAt(LocalDateTime.now())
+                            .build();
+
+            orderStatusService.saveOrderStatus(savedStatus);
+
             String json = objectMapper.writeValueAsString(event);
             kafkaTemplate.send(orderStatusTopic, String.valueOf(orderId), json);
 
         } catch (Exception e) {
-            log.error("Error processing failed shipment from DLT", e);
-            // Last resort - create a generic failure notification
-            try {
-                OrderStatusEvent event = OrderStatusEvent.builder()
-                        .orderId(0)
-                        .customerId("unknown")
-                        .status(OrderStatus.ORDER_FAILED)
-                        .message("Fatal error processing failed shipment")
-                        .destination("unknown")
-                        .shipId(0)
-                        .timestamp(LocalDateTime.now())
-                        .build();
-
-                String json = objectMapper.writeValueAsString(event);
-                kafkaTemplate.send(orderStatusTopic, "error", json);
-            } catch (Exception ex) {
-                log.error("Could not send error notification", ex);
-            }
+            log.error("Error handling failed shipment", e);
         }
     }
 
-    private String getStringValue(Object obj, String methodName) {
-        try {
-            Method method = obj.getClass().getMethod(methodName);
-            Object result = method.invoke(obj);
-            return result != null ? result.toString() : "";
-        } catch (Exception e) {
-            log.warn("Error getting string value for method {}: {}", methodName, e.getMessage());
-            return "";
-        }
+    private int getIntValue(Object obj, String methodName) throws Exception {
+        Method method = obj.getClass().getMethod(methodName);
+        Object result = method.invoke(obj);
+        return result != null ? Integer.parseInt(result.toString()) : 0;
     }
 
-    private int getIntValue(Object obj, String methodName) {
-        try {
-            Method method = obj.getClass().getMethod(methodName);
-            Object result = method.invoke(obj);
-            return result != null ? (Integer) result : 0;
-        } catch (Exception e) {
-            log.warn("Error getting int value for method {}: {}", methodName, e.getMessage());
-            return 0;
-        }
+    private String getStringValue(Object obj, String methodName) throws Exception {
+        Method method = obj.getClass().getMethod(methodName);
+        Object result = method.invoke(obj);
+        return result != null ? result.toString() : "";
     }
 }
