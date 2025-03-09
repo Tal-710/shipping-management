@@ -77,8 +77,12 @@ public class OrderService {
             return true;
 
         } catch (Exception e) {
-            log.error("Failed to check inventory: {}", e.getMessage());
-            throw new InventoryNotAvailableException("Inventory service unavailable");
+            log.error("Check inventory Failed: {}", e.getMessage());
+            if (e.getMessage() != null && e.getMessage().contains("400 Bad Request")) {
+                throw new InventoryNotAvailableException("Product is out of stock");
+            } else {
+                throw new InventoryNotAvailableException("Inventory service unavailable");
+            }
         }
     }
 
