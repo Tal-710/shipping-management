@@ -1,0 +1,73 @@
+﻿spring:
+  application:
+    name: notification-service
+
+  datasource:
+    url: jdbc:mysql://host.docker.internal:3306/shipping_system
+    username: root
+    password: 123456789
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  kafka:
+    bootstrap-servers: broker:29092
+    schema-registry-url: http://schema-registry:8081
+    properties:
+      client.id: ${spring.application.name}
+      security.protocol: PLAINTEXT
+      auto.register.schemas: true
+      bootstrap.servers: broker:29092
+
+    consumer:
+      group-id: notification-service-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+      properties:
+        client.id: ${spring.application.name}-consumer
+        security.protocol: PLAINTEXT
+        allow.auto.create.topics: true
+        bootstrap.servers: broker:29092
+        schema.registry.url: http://schema-registry:8081
+        specific.avro.reader: true
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        client.id: ${spring.application.name}-producer
+        security.protocol: PLAINTEXT
+        bootstrap.servers: broker:29092
+
+    listener:
+      ack-mode: RECORD
+      missing-topics-fatal: false
+
+    streams:
+      application-id: ${spring.application.name}-streams
+      properties:
+        client.id: ${spring.application.name}-streams
+        security.protocol: PLAINTEXT
+        bootstrap.servers: broker:29092
+        processing.guarantee: exactly_once_v2
+
+app:
+  kafka:
+    topics:
+      shipment-created: shipment-created
+      unassigned-shipping-orders: unassigned-shipping-orders-topic
+      unassigned-shipping-orders-dlt: unassigned-shipping-orders-topic-dlt
+      order-submitted: order-submitted
+      order-inventory-dlt: order-inventory-dlt
+      order-status: order-status-topic
+      latest-order-status: latest-order-status-topic
+
+server:
+  port: 8091

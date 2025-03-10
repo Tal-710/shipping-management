@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: order-service
+
+  datasource:
+    url: jdbc:mysql://host.docker.internal:3306/shipping_system
+    username: root
+    password: 123456789
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+    show-sql: true
+
+  kafka:
+    bootstrap-servers: PLAINTEXT://broker:29092
+    schema-registry-url: http://schema-registry:8081
+    properties:
+      client.id: ${spring.application.name}
+      security.protocol: PLAINTEXT
+      auto.register.schemas: true
+      bootstrap.servers: PLAINTEXT://broker:29092
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        client.id: ${spring.application.name}-producer
+        security.protocol: PLAINTEXT
+        bootstrap.servers: PLAINTEXT://broker:29092
+        schema.registry.url: ${spring.kafka.schema-registry-url}
+
+server:
+  port: 8085
+
+app:
+  inventory-service-url: http://inventory-service:8080
+  kafka:
+    topics:
+      order-submitted: order-submitted
+      order-inventory-retry: order-inventory-retry
+      order-inventory-dlt: order-inventory-dlt
